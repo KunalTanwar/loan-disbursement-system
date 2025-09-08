@@ -89,7 +89,10 @@ export default function Borrowers() {
                         <li key={b.id} className="py-2">
                             <div className="font-medium">{b.name}</div>
                             <div className="text-xs text-gray-500">
-                                {b.email} • {b.currency} • {b.kycStatus}
+                                <strong>Email : </strong>
+                                {b.email} • <strong>Borrowing in : </strong>{" "}
+                                {b.currency} • <strong>KYC Status : </strong>
+                                {b.kycStatus}
                             </div>
                         </li>
                     ))}

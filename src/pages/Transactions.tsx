@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { db } from "@/db"
 import { Card } from "@/components/ui"
 import { formatMoney } from "@/lib/money"
+import type { Transaction } from "@/types"
 
 export default function Transactions() {
     const [tx, setTx] = useState<any[]>([])
@@ -12,7 +13,7 @@ export default function Transactions() {
     return (
         <Card title="Transactions">
             <ul className="divide-y text-sm dark:divide-gray-800">
-                {tx.map((t) => (
+                {tx.map((t: Transaction) => (
                     <li
                         key={t.id}
                         className="flex items-center justify-between py-2"
@@ -20,7 +21,9 @@ export default function Transactions() {
                         <div className="capitalize">{t.type}</div>
 
                         <div className="tabular-nums">
-                            {formatMoney(t.amount, t.currency)}
+                            {t.type === "disbursement"
+                                ? `-${formatMoney(t.amount, t.currency)}`
+                                : `+${formatMoney(t.amount, t.currency)}`}
                         </div>
 
                         <div className="text-xs text-gray-500">

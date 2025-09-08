@@ -17,7 +17,7 @@ export function DisbursementsByMonth({
     data: number[]
 }) {
     return (
-        <div className="rounded-lg border p-4 dark:border-gray-800">
+        <div className="h-full rounded-lg border p-4 dark:border-gray-800">
             <Bar
                 data={{
                     labels,

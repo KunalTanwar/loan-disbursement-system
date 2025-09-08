@@ -1,12 +1,14 @@
+// src/pages/Applications.tsx
 import { useEffect, useMemo, useState } from "react"
-import { Link } from "react-router-dom"
-import { db } from "@/db"
+import { db } from "../db"
 import {
     createApplication,
     submitApplication,
     approveApplication,
-} from "@/services/applications"
-import { Card, Button, Input, Select } from "@/components/ui"
+} from "../services/applications"
+import { Card, Button, Input, Select } from "../components/ui"
+import { Link } from "react-router-dom"
+import { formatMoney } from "../lib/money"
 
 export default function Applications() {
     const [borrowers, setBorrowers] = useState<any[]>([])
@@ -31,6 +33,19 @@ export default function Applications() {
         [borrowerId, productId, principal]
     )
 
+    // Map productId -> currency for display fallbacks
+    const productCurrency = useMemo(() => {
+        const m = new Map<string, string>()
+        for (const p of products) m.set(p.id, p.currency)
+        return m
+    }, [products])
+
+    // Find the selected product to label the principal field
+    const selectedProduct = useMemo(
+        () => products.find((p) => p.id === productId),
+        [products, productId]
+    )
+
     return (
         <div className="space-y-6">
             <Card title="New Application">
@@ -42,6 +57,7 @@ export default function Applications() {
                         >
                             Borrower
                         </label>
+
                         <Select
                             id="application-borrower"
                             value={borrowerId}
@@ -63,6 +79,7 @@ export default function Applications() {
                         >
                             Product
                         </label>
+
                         <Select
                             id="application-product"
                             value={productId}
@@ -83,12 +100,8 @@ export default function Applications() {
                             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                         >
                             Principal{" "}
-                            {productId &&
-                            products.find((p) => p.id === productId)?.currency
-                                ? `(${
-                                      products.find((p) => p.id === productId)!
-                                          .currency
-                                  })`
+                            {selectedProduct
+                                ? `(${selectedProduct.currency})`
                                 : ""}
                         </label>
 
@@ -124,53 +137,61 @@ export default function Applications() {
 
             <Card title="Applications">
                 <ul className="divide-y dark:divide-gray-800">
-                    {apps.map((a) => (
-                        <li
-                            key={a.id}
-                            className="flex items-center justify-between py-3"
-                        >
-                            <div>
-                                <div className="font-medium">
-                                    {a.id.slice(0, 8)} • $
-                                    {a.principal.toFixed(2)}
+                    {apps.map((a) => {
+                        // Prefer app.currency if present,
+                        // else fall back to the product currency, else USD as a last resort.
+                        const ccy =
+                            a.currency ??
+                            productCurrency.get(a.productId) ??
+                            "USD"
+                        return (
+                            <li
+                                key={a.id}
+                                className="flex items-center justify-between py-3"
+                            >
+                                <div>
+                                    <div className="font-medium">
+                                        {a.id.slice(0, 8)} •{" "}
+                                        {formatMoney(a.principal, ccy)}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                        Status: {a.status}
+                                    </div>
                                 </div>
-                                <div className="text-xs text-gray-500">
-                                    Status: {a.status}
+                                <div className="flex items-center gap-2">
+                                    {a.status === "draft" && (
+                                        <Button
+                                            onClick={async () => {
+                                                await submitApplication(a.id)
+                                                await reload()
+                                            }}
+                                        >
+                                            Submit
+                                        </Button>
+                                    )}
+                                    {a.status === "submitted" && (
+                                        <Button
+                                            onClick={async () => {
+                                                await approveApplication(
+                                                    a.id,
+                                                    "admin-1"
+                                                )
+                                                await reload()
+                                            }}
+                                        >
+                                            Approve
+                                        </Button>
+                                    )}
+                                    <Link
+                                        className="text-blue-500 rounded-md px-3 py-2 bg-blue-600/20"
+                                        to={`/applications/${a.id}`}
+                                    >
+                                        Open
+                                    </Link>
                                 </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                {a.status === "draft" && (
-                                    <Button
-                                        onClick={async () => {
-                                            await submitApplication(a.id)
-                                            await reload()
-                                        }}
-                                    >
-                                        Submit
-                                    </Button>
-                                )}
-                                {a.status === "submitted" && (
-                                    <Button
-                                        onClick={async () => {
-                                            await approveApplication(
-                                                a.id,
-                                                "admin-1"
-                                            )
-                                            await reload()
-                                        }}
-                                    >
-                                        Approve
-                                    </Button>
-                                )}
-                                <Link
-                                    className="text-blue-600"
-                                    to={`/applications/${a.id}`}
-                                >
-                                    Open
-                                </Link>
-                            </div>
-                        </li>
-                    ))}
+                            </li>
+                        )
+                    })}
                 </ul>
             </Card>
         </div>

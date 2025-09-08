@@ -4,11 +4,13 @@ export interface User {
     id: ID
     name: string
     email: string
-    role: "admin" | "officer" | "auditor"
+    role: "admin" | "officer" | "auditor" | "customer"
+    password?: PasswordRecord // stored hash; never store plaintext
 }
 
 export interface Borrower {
     id: ID
+    userId?: ID
     name: string
     email: string
     phone?: string
@@ -104,4 +106,12 @@ export interface AuditEvent {
     entityId: ID
     at: string
     diff?: Record<string, unknown>
+}
+
+export interface PasswordRecord {
+    algo: "PBKDF2"
+    hash: string // base64
+    salt: string // base64
+    iterations: number // e.g. 100_000
+    hashAlg: "SHA-256"
 }

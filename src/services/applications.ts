@@ -2,22 +2,29 @@ import { db } from "@/db"
 import type { LoanApplication, AuditEvent, Transaction } from "@/types"
 import { buildReducingSchedule } from "@/lib/schedule"
 import { convertAmount } from "./fx"
+import { assertAdmin, assertCustomerOwnsBorrower } from "./authorizer"
 
 export async function createApplication(
-    input: Omit<LoanApplication, "id" | "status" | "createdAt" | "currency">
+    input: Omit<LoanApplication, "id" | "status" | "createdAt" | "currency">,
+    actor?: { id: string; role: string }
 ) {
+    if (actor?.role === "customer") {
+        await assertCustomerOwnsBorrower(actor.id, input.borrowerId)
+    }
+
     const product = await db.products.get(input.productId)
 
-    if (!product) {
-        throw new Error("Missing product")
-    }
+    if (!product) throw new Error("Missing product")
 
     const app: LoanApplication = {
         id: crypto.randomUUID(),
+        borrowerId: input.borrowerId,
+        productId: input.productId,
+        principal: input.principal,
+        currency: product.currency,
         status: "draft",
         createdAt: new Date().toISOString(),
-        currency: product.currency,
-        ...input,
+        notes: input.notes,
     }
 
     await db.applications.add(app)
@@ -54,7 +61,13 @@ export async function submitApplication(id: string) {
     })
 }
 
-export async function approveApplication(id: string, approverId: string) {
+export async function approveApplication(
+    id: string,
+    approverId: string,
+    actor?: { role: string }
+) {
+    assertAdmin(actor?.role)
+
     return db.transaction("rw", db.applications, db.audits, async () => {
         const app = await db.applications.get(id)
 
@@ -90,8 +103,10 @@ export async function approveApplication(id: string, approverId: string) {
 export async function disburseApplication(
     id: string,
     payoutAccount: string,
-    payoutCurrency: string
+    payoutCurrency: string,
+    actor?: { role: string }
 ) {
+    assertAdmin(actor?.role)
     return db.transaction(
         "rw",
         [

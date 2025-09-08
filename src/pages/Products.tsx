@@ -30,6 +30,7 @@ export default function Products() {
                         >
                             Name
                         </label>
+
                         <Input
                             id="product-name"
                             placeholder="e.g., Personal Loan"
@@ -120,6 +121,7 @@ export default function Products() {
                             >
                                 Processing fee %
                             </label>
+
                             <Input
                                 id="product-processing-fee"
                                 type="number"
@@ -177,8 +179,12 @@ export default function Products() {
                         <li key={p.id} className="py-2">
                             <div className="font-medium">{p.name}</div>
                             <div className="text-xs text-gray-500">
-                                {p.currency} • {p.interestRate}%{" "}
-                                {p.interestType} • {p.termMonths}m
+                                <strong>Currency :</strong> {p.currency} •{" "}
+                                <strong>Rate of Interest :</strong>{" "}
+                                {p.interestRate}%{" "}
+                                <strong>Interest Type :</strong>{" "}
+                                {p.interestType} • <strong>Tenure :</strong>{" "}
+                                {p.termMonths}m
                             </div>
                         </li>
                     ))}

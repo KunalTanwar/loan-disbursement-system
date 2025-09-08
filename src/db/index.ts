@@ -22,16 +22,16 @@ export class LoanDB extends Dexie {
 
     constructor() {
         super("loan_disbursement_db")
-        this.version(2).stores({
-            users: "id, role, email",
-            borrowers: "id, name, kycStatus, currency",
+        this.version(4).stores({
+            users: "id, role, &email",
+            borrowers: "id, userId, name, kycStatus, currency", // NEW: userId index
             products: "id, name, currency",
             applications:
-                "id, borrowerId, productId, currency, status, createdAt, approvedAt, disbursedAt", // currency indexed
+                "id, borrowerId, productId, currency, status, createdAt, approvedAt, disbursedAt",
             schedules: "id, applicationId",
             repayments: "id, applicationId, installmentId, receivedAt",
             transactions:
-                "id, type, currency, applicationId, borrowerId, createdAt", // currency indexed
+                "id, type, currency, applicationId, borrowerId, createdAt",
             audits: "id, actorId, action, entity, entityId, at",
         })
     }

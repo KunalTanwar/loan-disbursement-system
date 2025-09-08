@@ -1,17 +1,23 @@
 import { useEffect, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
-import { db } from "@/db"
-import { disburseApplication } from "@/services/applications"
-import { postRepayment } from "@/services/repayments"
-import { Card, Button, Input, Select } from "@/components/ui"
+import { db } from "../db"
+import { disburseApplication } from "../services/applications"
+import { postRepayment } from "../services/repayments"
+import { Card, Button, Input, Select } from "../components/ui"
+import { formatMoney } from "../lib/money"
+import { useAuth } from "../context/auth"
 
 export default function ApplicationDetail() {
+    const { user } = useAuth()
     const { id } = useParams<{ id: string }>()
     const [app, setApp] = useState<any>(null)
     const [product, setProduct] = useState<any>(null)
     const [schedule, setSchedule] = useState<any>(null)
     const [repayAmount, setRepayAmount] = useState<number>(0)
     const [currency, setCurrency] = useState("USD")
+
+    // Determine the application currency for display (app.currency preferred, else product.currency)
+    const appCurrency = app?.currency ?? product?.currency ?? "USD"
 
     const reload = async () => {
         const a = await db.applications.get(id!)
@@ -25,6 +31,7 @@ export default function ApplicationDetail() {
         )
         setCurrency(p?.currency ?? "USD")
     }
+
     useEffect(() => {
         reload()
     }, [id])
@@ -42,25 +49,27 @@ export default function ApplicationDetail() {
                         <div>
                             <div className="font-medium">{app.id}</div>
                             <div className="text-sm text-gray-500">
-                                Status: {app.status} • Principal: $
-                                {app.principal.toFixed(2)}
+                                <strong>Status :</strong> {app.status} •{" "}
+                                <strong>Principal :</strong>{" "}
+                                {formatMoney(app.principal, appCurrency)}
                             </div>
                         </div>
                         <div className="flex gap-2">
-                            {app.status === "approved" && (
-                                <Button
-                                    onClick={async () => {
-                                        await disburseApplication(
-                                            app.id,
-                                            "BANK-001",
-                                            product?.currency ?? "USD"
-                                        )
-                                        await reload()
-                                    }}
-                                >
-                                    Disburse
-                                </Button>
-                            )}
+                            {app.status === "approved" &&
+                                user?.role === "admin" && (
+                                    <Button
+                                        onClick={async () => {
+                                            await disburseApplication(
+                                                app.id,
+                                                "BANK-001",
+                                                product?.currency ?? "USD"
+                                            )
+                                            await reload()
+                                        }}
+                                    >
+                                        Disburse
+                                    </Button>
+                                )}
                         </div>
                     </div>
                 ) : (
@@ -70,7 +79,7 @@ export default function ApplicationDetail() {
 
             <div className="grid gap-6 sm:grid-cols-2">
                 <Card title="Schedule">
-                    <ul className="max-h-[420px] divide-y overflow-auto text-sm dark:divide-gray-800">
+                    <ul className="max-h-[420px] divide-y overflow-auto text-sm dark:divide-gray-800 pr-5">
                         {schedule?.installments?.map((i: any, idx: number) => (
                             <li
                                 key={i.id}
@@ -81,7 +90,7 @@ export default function ApplicationDetail() {
                                     {new Date(i.dueDate).toLocaleDateString()}
                                 </div>
                                 <div className="tabular-nums">
-                                    ${i.totalDue.toFixed(2)}{" "}
+                                    {formatMoney(i.totalDue, appCurrency)}{" "}
                                     {i.paid && (
                                         <span className="text-green-600">
                                             Paid
@@ -99,10 +108,12 @@ export default function ApplicationDetail() {
                             <div className="text-sm">
                                 Next due:{" "}
                                 <span className="font-medium">
-                                    ${nextInst.totalDue.toFixed(2)}
+                                    {formatMoney(
+                                        nextInst.totalDue,
+                                        appCurrency
+                                    )}
                                 </span>
                             </div>
-
                             <div>
                                 <label
                                     htmlFor="repayment-amount"
@@ -121,7 +132,6 @@ export default function ApplicationDetail() {
                                     placeholder="Amount"
                                 />
                             </div>
-
                             <div>
                                 <label
                                     htmlFor="repayment-currency"
@@ -136,14 +146,24 @@ export default function ApplicationDetail() {
                                         setCurrency(e.target.value)
                                     }
                                 >
-                                    {["USD", "INR", "EUR", "GBP"].map((c) => (
+                                    {[
+                                        "USD",
+                                        "INR",
+                                        "EUR",
+                                        "GBP",
+                                        "JPY",
+                                        "AUD",
+                                        "CAD",
+                                        "AED",
+                                        "SGD",
+                                        "CHF",
+                                    ].map((c) => (
                                         <option key={c} value={c}>
                                             {c}
                                         </option>
                                     ))}
                                 </Select>
                             </div>
-
                             <Button
                                 onClick={async () => {
                                     await postRepayment(
