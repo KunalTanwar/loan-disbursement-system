@@ -11,7 +11,7 @@ export default function MyApplications() {
     const [products, _] = useState<any[]>([])
 
     useEffect(() => {
-        let active = true
+        let active: boolean
         ;(async () => {
             const b = await db.borrowers
                 .where("userId")
@@ -29,6 +29,7 @@ export default function MyApplications() {
                 setApps([])
             }
         })()
+        
         return () => {
             active = false
         }
