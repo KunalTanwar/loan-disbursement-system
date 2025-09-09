@@ -11,7 +11,7 @@ export default function UserDashboard() {
     const [_, setAppIds] = useState<string[]>([])
     const [apps, setApps] = useState<LoanApplication[]>([])
     const [schedules, setSchedules] = useState<any[]>([])
-    const [currency, _] = useState("USD")
+    const [currency, __] = useState("USD")
 
     useEffect(() => {
         let active = true
