@@ -1,4 +1,3 @@
-// src/pages/Apply.tsx
 import { useEffect, useMemo, useState } from "react"
 import { db } from "../db"
 import { useAuth } from "../context/auth"
@@ -122,8 +121,6 @@ export default function Apply() {
                                     },
                                     { id: user!.id, role: user!.role }
                                 )
-                                // optional: navigate to /my/applications
-                                window.location.href = "/my/applications"
                             } finally {
                                 setLoading(false)
                             }
