@@ -11,21 +11,23 @@ export default function MyApplications() {
     const [products, _] = useState<any[]>([])
 
     useEffect(() => {
-        var active: boolean
+        let active: boolean = true
         ;(async () => {
             const b = await db.borrowers
                 .where("userId")
                 .equals(user!.id)
                 .first()
-            if (b) {
+            if (b && active) {
                 const a = await db.applications
                     .where("borrowerId")
                     .equals(b.id)
                     .toArray()
-                setApps(
-                    a.sort((x, y) => y.createdAt.localeCompare(x.createdAt))
-                )
-            } else {
+                if (active) {
+                    setApps(
+                        a.sort((x, y) => y.createdAt.localeCompare(x.createdAt))
+                    )
+                }
+            } else if (active) {
                 setApps([])
             }
         })()
