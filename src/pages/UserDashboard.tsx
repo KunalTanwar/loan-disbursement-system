@@ -4,12 +4,12 @@ import { Card } from "../components/ui"
 import { formatMoney } from "../lib/money"
 import { Doughnut } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
-
+import type { LoanApplication } from "@/types"
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 export default function UserDashboard() {
-    const [appIds, setAppIds] = useState<string[]>([])
-    const [apps, setApps] = useState<any[]>([])
+    const [_, setAppIds] = useState<string[]>([])
+    const [apps, setApps] = useState<LoanApplication[]>([])
     const [schedules, setSchedules] = useState<any[]>([])
     const [currency, setCurrency] = useState("USD")
 
@@ -18,11 +18,15 @@ export default function UserDashboard() {
         ;(async () => {
             const a = await db.applications.toArray()
             const s = await db.schedules.toArray()
-            if (!active) return
+
+            if (!active) {
+                return
+            }
+
             setApps(a)
             setSchedules(s)
             setAppIds(a.map((x) => x.id))
-            setCurrency(a?.currency ?? "USD")
+            // setCurrency(a?.find((x) => x.currency ?? "USD"))
         })()
         return () => {
             active = false

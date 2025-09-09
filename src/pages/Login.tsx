@@ -7,7 +7,6 @@ export default function Login() {
     const { login } = useAuth()
     const nav = useNavigate()
     const loc = useLocation()
-    const from = (loc.state as any)?.from || "/"
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [err, setErr] = useState<string | null>(null)
@@ -24,7 +23,10 @@ export default function Login() {
                         setLoading(true)
                         try {
                             await login(email, password)
-                            nav(from, { replace: true })
+
+                            nav((loc.state as any)?.from || "/", {
+                                replace: true,
+                            })
                         } catch (ex: any) {
                             setErr(ex.message || "Login failed")
                         } finally {

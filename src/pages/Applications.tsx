@@ -9,8 +9,10 @@ import {
 import { Card, Button, Input, Select } from "../components/ui"
 import { Link } from "react-router-dom"
 import { formatMoney } from "../lib/money"
+import { useAuth } from "@/context/auth"
 
 export default function Applications() {
+    const { user } = useAuth()
     const [borrowers, setBorrowers] = useState<any[]>([])
     const [products, setProducts] = useState<any[]>([])
     const [apps, setApps] = useState<any[]>([])
@@ -169,19 +171,29 @@ export default function Applications() {
                                             Submit
                                         </Button>
                                     )}
-                                    {a.status === "submitted" && (
-                                        <Button
-                                            onClick={async () => {
-                                                await approveApplication(
-                                                    a.id,
-                                                    "admin-1"
-                                                )
-                                                await reload()
-                                            }}
-                                        >
-                                            Approve
-                                        </Button>
-                                    )}
+                                    {a.status === "submitted" &&
+                                        user?.role === "admin" && (
+                                            <Button
+                                                onClick={async () => {
+                                                    try {
+                                                        await approveApplication(
+                                                            a.id,
+                                                            user.id,
+                                                            { role: user.role }
+                                                        )
+                                                        await reload()
+                                                    } catch (e: any) {
+                                                        alert(
+                                                            e.message ||
+                                                                "Approve failed"
+                                                        )
+                                                        console.error(e)
+                                                    }
+                                                }}
+                                            >
+                                                Approve
+                                            </Button>
+                                        )}
                                     <Link
                                         className="text-blue-500 rounded-md px-3 py-2 bg-blue-600/20"
                                         to={`/applications/${a.id}`}

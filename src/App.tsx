@@ -1,131 +1,16 @@
-import { useAuth } from "./context/auth"
+import { NavLink, Outlet, Link, useNavigate } from "react-router-dom"
 import NotificationBell from "./components/ui"
-import { NavLink, Link, Outlet, useNavigate } from "react-router-dom"
+import { useAuth } from "./context/auth"
+
+function linkCls({ isActive }: { isActive: boolean }) {
+    return isActive
+        ? "font-medium text-blue-600"
+        : "text-gray-600 dark:text-gray-300"
+}
 
 export default function App() {
     const { user, logout } = useAuth()
     const nav = useNavigate()
-
-    const CustomerLinks = () => (
-        <>
-            <NavLink
-                to="/me"
-                className={({ isActive }) =>
-                    isActive
-                        ? "font-medium text-blue-600"
-                        : "text-gray-600 dark:text-gray-300"
-                }
-            >
-                My Dashboard
-            </NavLink>
-            <NavLink
-                to="/my/applications"
-                className={({ isActive }) =>
-                    isActive
-                        ? "font-medium text-blue-600"
-                        : "text-gray-600 dark:text-gray-300"
-                }
-            >
-                My Applications
-            </NavLink>
-            <NavLink
-                to="/my/transactions"
-                className={({ isActive }) =>
-                    isActive
-                        ? "font-medium text-blue-600"
-                        : "text-gray-600 dark:text-gray-300"
-                }
-            >
-                My Transactions
-            </NavLink>
-            <NavLink
-                to="/catalog"
-                className={({ isActive }) =>
-                    isActive
-                        ? "font-medium text-blue-600"
-                        : "text-gray-600 dark:text-gray-300"
-                }
-            >
-                Catalog
-            </NavLink>
-            <NavLink
-                to="/apply"
-                className={({ isActive }) =>
-                    isActive
-                        ? "font-medium text-blue-600"
-                        : "text-gray-600 dark:text-gray-300"
-                }
-            >
-                Apply
-            </NavLink>
-        </>
-    )
-
-    const StaffLinks = () => (
-        <>
-            <NavLink
-                to="/"
-                end
-                className={({ isActive }) =>
-                    isActive
-                        ? "font-medium text-blue-600"
-                        : "text-gray-600 dark:text-gray-300"
-                }
-            >
-                Dashboard
-            </NavLink>
-            <NavLink
-                to="/applications"
-                className={({ isActive }) =>
-                    isActive
-                        ? "font-medium text-blue-600"
-                        : "text-gray-600 dark:text-gray-300"
-                }
-            >
-                Applications
-            </NavLink>
-            <NavLink
-                to="/borrowers"
-                className={({ isActive }) =>
-                    isActive
-                        ? "font-medium text-blue-600"
-                        : "text-gray-600 dark:text-gray-300"
-                }
-            >
-                Borrowers
-            </NavLink>
-            <NavLink
-                to="/products"
-                className={({ isActive }) =>
-                    isActive
-                        ? "font-medium text-blue-600"
-                        : "text-gray-600 dark:text-gray-300"
-                }
-            >
-                Products
-            </NavLink>
-            <NavLink
-                to="/transactions"
-                className={({ isActive }) =>
-                    isActive
-                        ? "font-medium text-blue-600"
-                        : "text-gray-600 dark:text-gray-300"
-                }
-            >
-                Transactions
-            </NavLink>
-            <NavLink
-                to="/audits"
-                className={({ isActive }) =>
-                    isActive
-                        ? "font-medium text-blue-600"
-                        : "text-gray-600 dark:text-gray-300"
-                }
-            >
-                Audits
-            </NavLink>
-        </>
-    )
 
     return (
         <div className="min-h-full">
@@ -134,14 +19,67 @@ export default function App() {
                     <h1 className="text-xl font-semibold">
                         <Link to="/">Loan Disbursement</Link>
                     </h1>
+
                     <nav className="flex items-center gap-4 text-sm">
-                        {user?.role === "customer" && <CustomerLinks />}
-                        {user && user.role !== "customer" && <StaffLinks />}
+                        {/* Customer navigation */}
+                        {user?.role === "customer" && (
+                            <>
+                                <NavLink to="/me" className={linkCls}>
+                                    My Dashboard
+                                </NavLink>
+                                <NavLink
+                                    to="/my/applications"
+                                    className={linkCls}
+                                >
+                                    My Applications
+                                </NavLink>
+                                <NavLink
+                                    to="/my/transactions"
+                                    className={linkCls}
+                                >
+                                    My Transactions
+                                </NavLink>
+                                <NavLink to="/catalog" className={linkCls}>
+                                    Catalog
+                                </NavLink>
+                                <NavLink to="/apply" className={linkCls}>
+                                    Apply
+                                </NavLink>
+                                <NavLink to="/payment-plan" className={linkCls}>
+                                    Payment Plan
+                                </NavLink>
+                            </>
+                        )}
+
+                        {/* Staff/admin navigation */}
+                        {user && user.role !== "customer" && (
+                            <>
+                                <NavLink to="/" end className={linkCls}>
+                                    Dashboard
+                                </NavLink>
+                                <NavLink to="/applications" className={linkCls}>
+                                    Applications
+                                </NavLink>
+                                <NavLink to="/borrowers" className={linkCls}>
+                                    Borrowers
+                                </NavLink>
+                                <NavLink to="/products" className={linkCls}>
+                                    Products
+                                </NavLink>
+                                <NavLink to="/transactions" className={linkCls}>
+                                    Transactions
+                                </NavLink>
+                                <NavLink to="/audits" className={linkCls}>
+                                    Audits
+                                </NavLink>
+                            </>
+                        )}
+
+                        {/* Right controls */}
                         <div className="ml-4 flex items-center gap-3">
                             {user ? (
                                 <>
-                                    {user.role && <NotificationBell />}
-                                    {/* hidden for guests */}
+                                    <NotificationBell />
                                     <button
                                         onClick={() => {
                                             logout()
@@ -154,24 +92,10 @@ export default function App() {
                                 </>
                             ) : (
                                 <>
-                                    <NavLink
-                                        to="/login"
-                                        className={({ isActive }) =>
-                                            isActive
-                                                ? "font-medium text-blue-600"
-                                                : "text-gray-600 dark:text-gray-300"
-                                        }
-                                    >
+                                    <NavLink to="/login" className={linkCls}>
                                         Login
                                     </NavLink>
-                                    <NavLink
-                                        to="/register"
-                                        className={({ isActive }) =>
-                                            isActive
-                                                ? "font-medium text-blue-600"
-                                                : "text-gray-600 dark:text-gray-300"
-                                        }
-                                    >
+                                    <NavLink to="/register" className={linkCls}>
                                         Register
                                     </NavLink>
                                 </>
@@ -180,6 +104,7 @@ export default function App() {
                     </nav>
                 </div>
             </header>
+
             <main className="mx-auto max-w-7xl p-4">
                 <Outlet />
             </main>

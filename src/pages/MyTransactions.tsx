@@ -39,9 +39,13 @@ export default function MyTransactions() {
                         className="flex items-center justify-between py-2"
                     >
                         <div className="capitalize">{t.type}</div>
+
                         <div className="tabular-nums">
-                            {formatMoney(t.amount, t.currency)}
+                            {t.type === "disbursement"
+                                ? `+ ${formatMoney(t.amount, t.currency)}`
+                                : `- ${formatMoney(t.amount, t.currency)}`}
                         </div>
+
                         <div className="text-xs text-gray-500">
                             {new Date(t.createdAt).toLocaleString()}
                         </div>

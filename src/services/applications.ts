@@ -1,8 +1,11 @@
 import { db } from "@/db"
 import type { LoanApplication, AuditEvent, Transaction } from "@/types"
 import { buildReducingSchedule } from "@/lib/schedule"
-import { convertAmount } from "./fx"
-import { assertAdmin, assertCustomerOwnsBorrower } from "./authorizer"
+import { assertCustomerOwnsBorrower } from "./authorizer"
+
+function assertAdmin(role?: string) {
+    if (role !== "admin") throw new Error("Forbidden: admin required")
+}
 
 export async function createApplication(
     input: Omit<LoanApplication, "id" | "status" | "createdAt" | "currency">,
@@ -64,24 +67,19 @@ export async function submitApplication(id: string) {
 export async function approveApplication(
     id: string,
     approverId: string,
-    actor?: { role: string }
+    actor?: { role?: string }
 ) {
     assertAdmin(actor?.role)
-
-    return db.transaction("rw", db.applications, db.audits, async () => {
+    return db.transaction("rw", [db.applications, db.audits], async () => {
         const app = await db.applications.get(id)
+        if (!app) throw new Error("Not found")
+        if (app.status !== "submitted")
+            throw new Error("Invalid state: not submitted")
 
-        if (!app) {
-            throw new Error("Not found")
-        }
-
-        if (app.status !== "submitted") {
-            throw new Error("Invalid state")
-        }
-
+        const approvedAt = new Date().toISOString()
         await db.applications.update(id, {
             status: "approved",
-            approvedAt: new Date().toISOString(),
+            approvedAt,
             approverId,
         })
 
@@ -91,11 +89,9 @@ export async function approveApplication(
             action: "approve",
             entity: "LoanApplication",
             entityId: id,
-            at: new Date().toISOString(),
+            at: approvedAt,
         }
-
         await db.audits.add(audit)
-
         return true
     })
 }
@@ -104,7 +100,7 @@ export async function disburseApplication(
     id: string,
     payoutAccount: string,
     payoutCurrency: string,
-    actor?: { role: string }
+    actor?: { id: string; role?: string }
 ) {
     assertAdmin(actor?.role)
     return db.transaction(
@@ -115,42 +111,19 @@ export async function disburseApplication(
             db.schedules,
             db.audits,
             db.products,
-        ], // array form
+        ],
         async () => {
             const app = await db.applications.get(id)
             if (!app) throw new Error("Not found")
-            if (app.status !== "approved") throw new Error("Invalid state")
+            if (app.status !== "approved")
+                throw new Error("Invalid state: not approved")
 
             const product = await db.products.get(app.productId)
             if (!product) throw new Error("Missing product")
 
             const disbursedAt = new Date().toISOString()
 
-            // Convert principal to payout currency if needed
-            let amountOut = app.principal
-            let fx:
-                | { from: string; to: string; rate: number; date?: string }
-                | undefined
-            if (
-                app.currency &&
-                payoutCurrency &&
-                app.currency !== payoutCurrency
-            ) {
-                const { result, rate } = await convertAmount(
-                    app.principal,
-                    app.currency,
-                    payoutCurrency,
-                    disbursedAt.slice(0, 10)
-                )
-                amountOut = result
-                fx = {
-                    from: app.currency,
-                    to: payoutCurrency,
-                    rate,
-                    date: disbursedAt.slice(0, 10),
-                }
-            }
-
+            // record disbursement in payoutCurrency; app.principal is in app.currency
             await db.applications.update(id, {
                 status: "disbursed",
                 disbursedAt,
@@ -159,12 +132,12 @@ export async function disburseApplication(
             const tx: Transaction = {
                 id: crypto.randomUUID(),
                 type: "disbursement",
-                amount: +amountOut.toFixed(2),
+                amount: app.principal, // store principal; convert at display/reporting time
                 currency: payoutCurrency,
                 createdAt: disbursedAt,
                 applicationId: id,
                 borrowerId: app.borrowerId,
-                meta: { account: payoutAccount, fx },
+                meta: { account: payoutAccount, appCurrency: app.currency },
             }
             await db.transactions.add(tx)
 
@@ -182,7 +155,7 @@ export async function disburseApplication(
 
             const audit: AuditEvent = {
                 id: crypto.randomUUID(),
-                actorId: "system",
+                actorId: actor!.id,
                 action: "disburse",
                 entity: "LoanApplication",
                 entityId: id,

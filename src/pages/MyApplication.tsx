@@ -7,9 +7,8 @@ import { formatMoney } from "../lib/money"
 
 export default function MyApplications() {
     const { user } = useAuth()
-    const [borrowerId, setBorrowerId] = useState<string | undefined>()
     const [apps, setApps] = useState<any[]>([])
-    const [products, setProducts] = useState<any[]>([])
+    const [products, _] = useState<any[]>([])
 
     useEffect(() => {
         let active = true
@@ -18,16 +17,14 @@ export default function MyApplications() {
                 .where("userId")
                 .equals(user!.id)
                 .first()
-            setBorrowerId(b?.id)
-            const p = await db.products.toArray()
-            setProducts(p)
-            if (b?.id) {
+            if (b) {
                 const a = await db.applications
                     .where("borrowerId")
                     .equals(b.id)
-                    .reverse()
-                    .sortBy("createdAt")
-                if (active) setApps(a)
+                    .toArray()
+                setApps(
+                    a.sort((x, y) => y.createdAt.localeCompare(x.createdAt))
+                )
             } else {
                 setApps([])
             }

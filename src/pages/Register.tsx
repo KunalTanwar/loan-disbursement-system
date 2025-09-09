@@ -8,7 +8,6 @@ export default function Register() {
     const { register } = useAuth()
     const nav = useNavigate()
     const loc = useLocation()
-    const from = (loc.state as any)?.from || "/"
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -38,7 +37,9 @@ export default function Register() {
 
                         try {
                             await register(name, email, password)
-                            nav(from, { replace: true })
+                            nav((loc.state as any)?.from || "/", {
+                                replace: true,
+                            })
                         } catch (ex: any) {
                             setErr(ex.message || "Registration failed")
                         } finally {

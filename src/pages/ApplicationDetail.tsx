@@ -59,12 +59,24 @@ export default function ApplicationDetail() {
                                 user?.role === "admin" && (
                                     <Button
                                         onClick={async () => {
-                                            await disburseApplication(
-                                                app.id,
-                                                "BANK-001",
-                                                product?.currency ?? "USD"
-                                            )
-                                            await reload()
+                                            try {
+                                                await disburseApplication(
+                                                    app.id,
+                                                    "BANK-001",
+                                                    product?.currency ?? "USD",
+                                                    {
+                                                        id: user.id,
+                                                        role: user.role,
+                                                    }
+                                                )
+                                                await reload()
+                                            } catch (e: any) {
+                                                alert(
+                                                    e.message ||
+                                                        "Disburse failed"
+                                                )
+                                                console.error(e)
+                                            }
                                         }}
                                     >
                                         Disburse

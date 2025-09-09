@@ -111,23 +111,83 @@ export async function login(email: string, password: string) {
     return user
 }
 
-// naive session using localStorage
-export function saveSession(u: User) {
-    localStorage.setItem(
-        "session_user",
-        JSON.stringify({ id: u.id, role: u.role, email: u.email, name: u.name })
-    )
-}
-export function loadSession(): {
+export type Session = {
     id: string
-    role: string
+    role: "admin" | "officer" | "auditor" | "customer"
     email: string
     name: string
-} | null {
-    const s = localStorage.getItem("session_user")
-
-    return s ? JSON.parse(s) : null
 }
+const SESSION_KEY = "session_user"
+
+function safeGetItem(key: string): string | null {
+    try {
+        return typeof window !== "undefined" ? localStorage.getItem(key) : null
+    } catch {
+        return null
+    }
+}
+
+function safeSetItem(key: string, value: string) {
+    try {
+        if (typeof window !== "undefined") localStorage.setItem(key, value)
+    } catch {
+        /* ignore */
+    }
+}
+
+function safeRemoveItem(key: string) {
+    try {
+        if (typeof window !== "undefined") localStorage.removeItem(key)
+    } catch {
+        /* ignore */
+    }
+}
+
+function isValidSession(x: any): x is Session {
+    return (
+        x &&
+        typeof x.id === "string" &&
+        typeof x.email === "string" &&
+        typeof x.name === "string" &&
+        (x.role === "admin" ||
+            x.role === "officer" ||
+            x.role === "auditor" ||
+            x.role === "customer")
+    )
+}
+
+export function saveSession(u: {
+    id: string
+    role: Session["role"]
+    email: string
+    name: string
+}) {
+    const minimal: Session = {
+        id: u.id,
+        role: u.role,
+        email: u.email,
+        name: u.name,
+    }
+    safeSetItem(SESSION_KEY, JSON.stringify(minimal))
+}
+
+export function loadSession(): Session | null {
+    const raw = safeGetItem(SESSION_KEY)
+    if (!raw) return null
+    try {
+        const parsed = JSON.parse(raw)
+        if (!isValidSession(parsed)) {
+            safeRemoveItem(SESSION_KEY)
+            return null
+        }
+        return parsed
+    } catch {
+        // corrupted JSON — clear and return null
+        safeRemoveItem(SESSION_KEY)
+        return null
+    }
+}
+
 export function clearSession() {
-    localStorage.removeItem("session_user")
+    safeRemoveItem(SESSION_KEY)
 }

@@ -34,7 +34,7 @@ export interface LoanApplication {
     borrowerId: ID
     productId: ID
     principal: number
-    currency: string // NEW: application currency (usually product.currency)
+    currency: string
     status: "draft" | "submitted" | "approved" | "rejected" | "disbursed"
     createdAt: string
     approvedAt?: string

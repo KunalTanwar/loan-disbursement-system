@@ -23,6 +23,8 @@ import MyApplications from "./pages/MyApplication"
 import MyTransactions from "./pages/MyTransactions"
 import ProductsCatalog from "./pages/ProductsCatalog"
 import Apply from "./pages/Apply"
+import PublicRoute from "./routes/PublicRoute"
+import PaymentPlan from "./pages/PaymentPlan"
 
 const qc = new QueryClient()
 
@@ -31,15 +33,21 @@ const router = createBrowserRouter([
         path: "/",
         element: <App />,
         children: [
-            { path: "login", element: <Login /> },
-            { path: "register", element: <Register /> },
+            // Public only (redirect if logged in)
+            {
+                element: <PublicRoute />,
+                children: [
+                    { path: "login", element: <Login /> },
+                    { path: "register", element: <Register /> },
+                ],
+            },
 
-            // Customer-only branch: only personal pages and catalog
+            // Customer-only branch: personal pages only
             {
                 element: <ProtectedRoute roles={["customer"]} />,
                 children: [
-                    { index: true, element: <UserDashboard /> }, // default home for customers
-                    { path: "me", element: <UserDashboard /> }, // convenience
+                    { index: true, element: <UserDashboard /> },
+                    { path: "me", element: <UserDashboard /> },
                     {
                         path: "users/:id",
                         element: <UserRoute />,
@@ -47,18 +55,19 @@ const router = createBrowserRouter([
                     },
                     { path: "my/applications", element: <MyApplications /> },
                     { path: "my/transactions", element: <MyTransactions /> },
-                    { path: "catalog", element: <ProductsCatalog /> }, // read-only products list
-                    { path: "apply", element: <Apply /> }, // apply form
+                    { path: "catalog", element: <ProductsCatalog /> },
+                    { path: "apply", element: <Apply /> },
+                    { path: "payment-plan", element: <PaymentPlan /> },
                 ],
             },
 
-            // Staff/admin branch: ops pages
+            // Staff/admin branch: ops/management only
             {
                 element: (
                     <ProtectedRoute roles={["admin", "officer", "auditor"]} />
                 ),
                 children: [
-                    { index: true, element: <Dashboard /> }, // staff dashboard
+                    { index: true, element: <Dashboard /> },
                     { path: "applications", element: <Applications /> },
                     {
                         path: "applications/:id",
