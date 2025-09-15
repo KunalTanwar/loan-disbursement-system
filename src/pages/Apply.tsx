@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
-import { db } from "../db"
-import { useAuth } from "../context/auth"
-import { Card, Button, Input, Select } from "../components/ui"
-import { createApplication } from "../services/applications"
+import { db } from "@/db"
+import { useAuth } from "@/context/auth"
+import { Card, Button, Input, Select } from "@/components/ui"
+import { createApplication } from "@/services/applications"
 
 export default function Apply() {
     const { user } = useAuth()
@@ -110,7 +110,9 @@ export default function Apply() {
                         loading={loading}
                         onClick={async () => {
                             if (!canApply) return
+
                             setLoading(true)
+
                             try {
                                 await createApplication(
                                     {

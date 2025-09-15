@@ -1,7 +1,7 @@
 import { useState } from "react"
-import { useAuth } from "../context/auth"
-import { Card, Button, Input } from "../components/ui"
-import { validateRegisterClient } from "../services/auth"
+import { useAuth } from "@/context/auth"
+import { Card, Button, Input } from "@/components/ui"
+import { validateRegisterClient } from "@/services/auth"
 import { useLocation, useNavigate } from "react-router-dom"
 
 export default function Register() {
@@ -16,8 +16,8 @@ export default function Register() {
     const [loading, setLoading] = useState(false)
 
     return (
-        <div className="max-w-md">
-            <Card title="Register">
+        <div className="w-full max-w-lg mx-auto flex justify-center">
+            <Card title="Create an Account" className="w-full">
                 <form
                     className="space-y-3"
                     onSubmit={async (e) => {
@@ -31,6 +31,7 @@ export default function Register() {
 
                         if (Object.keys(fe).length) {
                             ;(e.target as HTMLFormElement).reportValidity()
+
                             return
                         }
                         setLoading(true)
@@ -47,7 +48,7 @@ export default function Register() {
                         }
                     }}
                 >
-                    <div>
+                    <div className="mt-4">
                         <label
                             htmlFor="reg-name"
                             className="block text-sm font-medium"
@@ -68,12 +69,13 @@ export default function Register() {
                             </div>
                         )}
                     </div>
+
                     <div>
                         <label
                             htmlFor="reg-email"
                             className="block text-sm font-medium"
                         >
-                            Email
+                            Email Address
                         </label>
 
                         <Input
@@ -90,6 +92,7 @@ export default function Register() {
                             </div>
                         )}
                     </div>
+
                     <div>
                         <label
                             htmlFor="reg-password"
@@ -115,6 +118,12 @@ export default function Register() {
                     </div>
 
                     {err && <div className="text-sm text-red-600">{err}</div>}
+
+                    <p className="text-sm text-gray-500">
+                        By continuing, you agree to our{" "}
+                        <span className="font-bold">Terms</span> and
+                        <span className="font-bold"> Privacy Policy</span>.
+                    </p>
 
                     <Button type="submit" loading={loading}>
                         Create account

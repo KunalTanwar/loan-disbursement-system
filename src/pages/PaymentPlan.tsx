@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react"
-import { db } from "../db"
-import { Card } from "../components/ui"
-import { useAuth } from "../context/auth"
-import { formatMoney } from "../lib/money"
-import type { LoanApplication, RepaymentSchedule } from "../types"
+import { db } from "@/db"
+import { Card } from "@/components/ui"
+import { useAuth } from "@/context/auth"
+import { formatMoney } from "@/lib/money"
+import type { LoanApplication, RepaymentSchedule } from "@/types"
 
 type Row = { month: string; principal: number; interest: number; total: number }
 
@@ -11,16 +11,19 @@ export default function PaymentPlan() {
     const { user } = useAuth()
     const [_, setApps] = useState<LoanApplication[]>([])
     const [schedules, setSchedules] = useState<RepaymentSchedule[]>([])
-    const [currency, __] = useState("USD")
+    const [currency, __] = useState("INR")
 
     useEffect(() => {
         let active = true
+
         ;(async () => {
             if (!user) {
                 if (active) {
                     setApps([])
+
                     setSchedules([])
                 }
+
                 return
             }
             // Resolve the borrower's applications owned by this user
@@ -31,8 +34,10 @@ export default function PaymentPlan() {
             if (!borrower) {
                 if (active) {
                     setApps([])
+
                     setSchedules([])
                 }
+
                 return
             }
 

@@ -155,6 +155,7 @@ export default function Products() {
                     <Button
                         onClick={async () => {
                             if (!name) return
+
                             await createProduct({
                                 name,
                                 currency,
@@ -164,7 +165,9 @@ export default function Products() {
                                 processingFeePct,
                                 penaltyPct,
                             })
+
                             setName("")
+
                             await reload()
                         }}
                     >

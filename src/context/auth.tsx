@@ -6,7 +6,7 @@ import {
     clearSession,
     login as doLogin,
     register as doRegister,
-} from "../services/auth"
+} from "@/services/auth"
 
 type Session = {
     id: string

@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { useAuth } from "../context/auth"
-import { Card, Button, Input } from "../components/ui"
+import { useAuth } from "@/context/auth"
+import { Card, Button, Input } from "@/components/ui"
 import { useLocation, useNavigate } from "react-router-dom"
 
 export default function Login() {
@@ -13,14 +13,17 @@ export default function Login() {
     const [loading, setLoading] = useState(false)
 
     return (
-        <div className="max-w-md">
-            <Card title="Login">
+        <div className="w-full max-w-lg mx-auto flex justify-center">
+            <Card title="Welcome Back," className="w-full">
                 <form
                     className="space-y-3"
                     onSubmit={async (e) => {
                         e.preventDefault()
+
                         setErr(null)
+
                         setLoading(true)
+
                         try {
                             await login(email, password)
 
@@ -34,7 +37,7 @@ export default function Login() {
                         }
                     }}
                 >
-                    <div>
+                    <div className="mt-4">
                         <label
                             htmlFor="login-email"
                             className="block text-sm font-medium"

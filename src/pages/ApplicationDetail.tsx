@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
-import { db } from "../db"
-import { disburseApplication } from "../services/applications"
-import { postRepayment } from "../services/repayments"
-import { Card, Button, Input, Select } from "../components/ui"
-import { formatMoney } from "../lib/money"
-import { useAuth } from "../context/auth"
+import { db } from "@/db"
+import { disburseApplication } from "@/services/applications"
+import { postRepayment } from "@/services/repayments"
+import { Card, Button, Input, Select } from "@/components/ui"
+import { formatMoney } from "@/lib/money"
+import { useAuth } from "@/context/auth"
 
 export default function ApplicationDetail() {
     const { user } = useAuth()

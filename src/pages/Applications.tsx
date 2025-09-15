@@ -1,14 +1,14 @@
 // src/pages/Applications.tsx
 import { useEffect, useMemo, useState } from "react"
-import { db } from "../db"
+import { db } from "@/db"
 import {
     createApplication,
     submitApplication,
     approveApplication,
-} from "../services/applications"
-import { Card, Button, Input, Select } from "../components/ui"
+} from "@/services/applications"
+import { Card, Button, Input, Select } from "@/components/ui"
 import { Link } from "react-router-dom"
-import { formatMoney } from "../lib/money"
+import { formatMoney } from "@/lib/money"
 import { useAuth } from "@/context/auth"
 
 export default function Applications() {

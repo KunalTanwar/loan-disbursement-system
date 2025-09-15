@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
-import { db } from "../db"
-import { Card } from "../components/ui"
+import { db } from "@/db"
+import { Card } from "@/components/ui"
 
 export default function ProductsCatalog() {
     const [items, setItems] = useState<any[]>([])

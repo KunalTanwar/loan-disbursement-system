@@ -14,37 +14,42 @@ export default function App() {
 
     return (
         <div className="min-h-full">
-            <header className="border-b bg-white/80 backdrop-blur dark:bg-gray-900/80">
-                <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+            <header className="border-b border-b-gray-700 bg-white/80 backdrop-blur dark:bg-gray-900/80">
+                <div className="mx-auto flex max-w-7xl items-center justify-between px-12 py-6">
                     <h1 className="text-xl font-semibold">
                         <Link to="/">Loan Disbursement</Link>
                     </h1>
 
-                    <nav className="flex items-center gap-4 text-sm">
+                    <nav className="flex items-center gap-4">
                         {/* Customer navigation */}
                         {user?.role === "customer" && (
                             <>
                                 <NavLink to="/me" className={linkCls}>
                                     My Dashboard
                                 </NavLink>
+
                                 <NavLink
                                     to="/my/applications"
                                     className={linkCls}
                                 >
                                     My Applications
                                 </NavLink>
+
                                 <NavLink
                                     to="/my/transactions"
                                     className={linkCls}
                                 >
                                     My Transactions
                                 </NavLink>
+
                                 <NavLink to="/catalog" className={linkCls}>
                                     Catalog
                                 </NavLink>
+
                                 <NavLink to="/apply" className={linkCls}>
                                     Apply
                                 </NavLink>
+
                                 <NavLink to="/payment-plan" className={linkCls}>
                                     Payment Plan
                                 </NavLink>
@@ -57,18 +62,23 @@ export default function App() {
                                 <NavLink to="/" end className={linkCls}>
                                     Dashboard
                                 </NavLink>
+
                                 <NavLink to="/applications" className={linkCls}>
                                     Applications
                                 </NavLink>
+
                                 <NavLink to="/borrowers" className={linkCls}>
                                     Borrowers
                                 </NavLink>
+
                                 <NavLink to="/products" className={linkCls}>
                                     Products
                                 </NavLink>
+
                                 <NavLink to="/transactions" className={linkCls}>
                                     Transactions
                                 </NavLink>
+
                                 <NavLink to="/audits" className={linkCls}>
                                     Audits
                                 </NavLink>
@@ -76,16 +86,17 @@ export default function App() {
                         )}
 
                         {/* Right controls */}
-                        <div className="ml-4 flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                             {user ? (
                                 <>
                                     <NotificationBell />
+
                                     <button
                                         onClick={() => {
                                             logout()
                                             nav("/login", { replace: true })
                                         }}
-                                        className="rounded-md border px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        className="rounded cursor-pointer border px-4 py-2 bg-red-800 border-red-950"
                                     >
                                         Logout
                                     </button>
@@ -95,6 +106,7 @@ export default function App() {
                                     <NavLink to="/login" className={linkCls}>
                                         Login
                                     </NavLink>
+
                                     <NavLink to="/register" className={linkCls}>
                                         Register
                                     </NavLink>
@@ -105,7 +117,7 @@ export default function App() {
                 </div>
             </header>
 
-            <main className="mx-auto max-w-7xl p-4">
+            <main className="mx-auto max-w-7xl px-12 pt-6">
                 <Outlet />
             </main>
         </div>

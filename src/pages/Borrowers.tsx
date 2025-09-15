@@ -14,6 +14,8 @@ export default function Borrowers() {
         reload()
     }, [])
 
+    console.log(items)
+
     return (
         <div className="grid gap-6 sm:grid-cols-2">
             <Card title="New Borrower">
@@ -72,9 +74,13 @@ export default function Borrowers() {
                     <Button
                         onClick={async () => {
                             if (!name || !email) return
+
                             await createBorrower({ name, email, currency })
+
                             setName("")
+
                             setEmail("")
+
                             await reload()
                         }}
                     >
@@ -88,6 +94,7 @@ export default function Borrowers() {
                     {items.map((b) => (
                         <li key={b.id} className="py-2">
                             <div className="font-medium">{b.name}</div>
+
                             <div className="text-xs text-gray-500">
                                 <strong>Email : </strong>
                                 {b.email} • <strong>Borrowing in : </strong>{" "}

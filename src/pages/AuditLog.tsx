@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
-import { db } from "../db"
-import { Card } from "../components/ui"
+import { db } from "@/db"
+import { Card } from "@/components/ui"
 
 function relativeTimeFromNow(d: Date) {
     const diff = Date.now() - d.getTime()

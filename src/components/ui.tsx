@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { BellIcon } from "@heroicons/react/24/outline"
-import { db } from "../db"
+import { db } from "@/db"
 import { useAuth } from "@/context/auth"
 
 export function Card(
@@ -13,10 +13,11 @@ export function Card(
             }`}
         >
             {props.title && (
-                <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <h3 className="text-2xl mb-2 font-medium text-gray-700 dark:text-gray-300">
                     {props.title}
                 </h3>
             )}
+
             {props.children}
         </div>
     )
@@ -29,7 +30,7 @@ export function Button(
     return (
         <button
             {...rest}
-            className={`inline-flex items-center justify-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-white hover:bg-blue-700 disabled:opacity-50 ${
+            className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded bg-blue-600 px-3 py-2 text-white hover:bg-blue-700 disabled:opacity-50 ${
                 className ?? ""
             }`}
             aria-busy={loading ? "true" : undefined}
@@ -47,7 +48,7 @@ export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
     return (
         <input
             {...props}
-            className={`w-full rounded-md border px-3 py-2 dark:border-gray-800 dark:bg-gray-950 ${
+            className={`w-full rounded border px-3 py-2 dark:border-gray-800 dark:bg-gray-950 ${
                 props.className ?? ""
             }`}
         />
@@ -58,7 +59,7 @@ export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
     return (
         <select
             {...props}
-            className={`w-full rounded-md border px-3 py-2 dark:border-gray-800 dark:bg-gray-950 ${
+            className={`w-full cursor-pointer rounded appearance-none border px-3 py-2 dark:border-gray-800 dark:bg-gray-950 ${
                 props.className ?? ""
             }`}
         />
@@ -146,9 +147,13 @@ export default function NotificationBell() {
             const schedules = await db.schedules
                 .filter((s) => appIds.has(s.applicationId))
                 .toArray()
+
             const now = new Date()
+
             const near = new Date()
+
             near.setDate(near.getDate() + 7)
+
             for (const s of schedules) {
                 for (const inst of s.installments) {
                     if (inst.paid) continue
@@ -177,6 +182,7 @@ export default function NotificationBell() {
             const repayments = await db.repayments
                 .filter((r) => appIds.has(r.applicationId))
                 .toArray()
+
             for (const r of repayments) {
                 if (r.amount <= 0) {
                     notices.push({
@@ -193,6 +199,7 @@ export default function NotificationBell() {
             }
 
             notices.sort((a, b) => a.at.localeCompare(b.at)).reverse()
+
             if (active) setItems(notices)
         })()
 
@@ -211,19 +218,24 @@ export default function NotificationBell() {
                 setItems((prev) => [...prev])
             }
         }
+
         window.addEventListener("storage", onStorage)
+
         return () => window.removeEventListener("storage", onStorage)
     }, [user?.id])
 
     const unseen = useMemo(
         () => items.filter((n) => new Date(n.at).getTime() > lastSeen),
+
         [items, lastSeen]
     )
     const count = unseen.length
 
     function markAllAsRead() {
         if (!user) return
+
         localStorage.setItem(seenKey, String(Date.now()))
+
         // trigger storage event for this tab (for immediate visual update)
         window.dispatchEvent(
             new StorageEvent("storage", {
@@ -235,8 +247,11 @@ export default function NotificationBell() {
 
     function toggleOpen() {
         if (!user) return
+
         const next = !open
+
         setOpen(next)
+
         if (next) {
             // first open => mark seen
             markAllAsRead()
@@ -249,10 +264,11 @@ export default function NotificationBell() {
         <div className="relative">
             <button
                 aria-label="Notifications"
-                className="relative rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="relative cursor-pointer rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
                 onClick={toggleOpen}
             >
                 <BellIcon className="size-6" />
+
                 {count > 0 && (
                     <span className="absolute -right-1 -top-1 inline-flex size-5 items-center justify-center rounded-full bg-red-600 text-xs text-white">
                         {count}
@@ -277,6 +293,7 @@ export default function NotificationBell() {
                                 No notifications
                             </li>
                         )}
+
                         {items.map((n) => (
                             <li key={n.id} className="p-3">
                                 <div className="flex items-center justify-between">

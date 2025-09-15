@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import { db } from "../db"
-import { Card } from "../components/ui"
-import { useAuth } from "../context/auth"
-import { formatMoney } from "../lib/money"
+import { db } from "@/db"
+import { Card } from "@/components/ui"
+import { useAuth } from "@/context/auth"
+import { formatMoney } from "@/lib/money"
 
 export default function MyTransactions() {
     const { user } = useAuth()

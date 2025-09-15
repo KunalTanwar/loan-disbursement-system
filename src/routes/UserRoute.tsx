@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation, useParams } from "react-router-dom"
-import { useAuth } from "../context/auth"
+import { useAuth } from "@/context/auth"
 
 export default function UserRoute() {
     const { user } = useAuth()

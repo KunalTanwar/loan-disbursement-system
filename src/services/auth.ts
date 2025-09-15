@@ -1,6 +1,6 @@
-import { db } from "../db"
-import type { User } from "../types"
-import { hashPassword, verifyPassword } from "../lib/crypto"
+import { db } from "@/db"
+import type { User } from "@/types"
+import { hashPassword, verifyPassword } from "@/lib/crypto"
 
 const ADMIN_EMAIL = "admin@email.com"
 const ADMIN_PASS = "admin"
