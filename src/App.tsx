@@ -1,6 +1,13 @@
-import { NavLink, Outlet, Link, useNavigate } from "react-router-dom"
+import {
+    NavLink,
+    Outlet,
+    Link,
+    useNavigate,
+    useLocation,
+} from "react-router-dom"
 import NotificationBell from "./components/ui"
 import { useAuth } from "./context/auth"
+import { useEffect, useRef, useState } from "react"
 
 function linkCls({ isActive }: { isActive: boolean }) {
     return isActive
@@ -12,9 +19,32 @@ export default function App() {
     const { user, logout } = useAuth()
     const nav = useNavigate()
 
+    const { pathname } = useLocation()
+
+    const headerRef = useRef<HTMLElement | null>(null)
+
+    const [headerHeight, setHeaderHeight] = useState(0)
+
+    useEffect(() => {
+        const updateHeight = () => {
+            if (headerRef.current) {
+                setHeaderHeight(headerRef.current.offsetHeight)
+            }
+        }
+
+        updateHeight()
+
+        window.addEventListener("resize", updateHeight)
+
+        return () => window.removeEventListener("resize", updateHeight)
+    }, [])
+
     return (
         <div className="min-h-full">
-            <header className="border-b border-b-gray-700 bg-white/80 backdrop-blur dark:bg-gray-900/80">
+            <header
+                className="border-b border-b-gray-700 bg-white/80 backdrop-blur dark:bg-gray-900/80"
+                ref={headerRef}
+            >
                 <div className="mx-auto flex max-w-7xl items-center justify-between px-12 py-6">
                     <h1 className="text-xl font-semibold">
                         <Link to="/">Loan Disbursement</Link>
@@ -117,7 +147,18 @@ export default function App() {
                 </div>
             </header>
 
-            <main className="mx-auto max-w-7xl px-12 pt-6">
+            <main
+                className={`mx-auto max-w-7xl px-12 ${
+                    pathname === "/login" ||
+                    pathname === "/register" ||
+                    pathname === "/apply"
+                        ? "flex items-center justify-center"
+                        : "pt-6"
+                }`}
+                style={{
+                    height: `calc(100vh - ${headerHeight}px)`,
+                }}
+            >
                 <Outlet />
             </main>
         </div>

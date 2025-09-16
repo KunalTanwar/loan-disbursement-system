@@ -49,7 +49,7 @@ export default function Apply() {
     const canApply = borrowerId && productId && principal > 0
 
     return (
-        <div className="max-w-xl">
+        <div className="w-full max-w-xl">
             <Card title="Apply for a Loan">
                 <div className="space-y-3">
                     <div>
